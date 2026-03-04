@@ -10,27 +10,53 @@ class TodoList extends StatefulWidget {
 }
 
 class TodoListState extends State<TodoList> {
-  final TextEditingController _controller = TextEditingController();
   List<String> tarefas = [];
 
-  void _adicionarTarefa() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        tarefas.add(_controller.text);
-      });
-      _controller.clear();
-    }
+  void _showAddTaskDialog() {
+    final TextEditingController dialogController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Adicionar Tarefa'),
+        content: TextField(
+          controller: dialogController,
+          decoration: InputDecoration(hintText: 'Digite a tarefa'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (dialogController.text.isNotEmpty) {
+                setState(() {
+                  tarefas.add(dialogController.text);
+                });
+              }
+              Navigator.of(context).pop();
+            },
+            child: Text('Adicionar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Minha Lista de Tarefas')),
+      appBar: AppBar(
+        title: Text('Minha Lista de Tarefas'),
+        backgroundColor: Colors.blue,
+      ),
+      backgroundColor: Colors.blue[50],
       body: ListView.builder(
         itemCount: tarefas.length,
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(tarefas[index]),
+            tileColor: index % 2 == 0 ? Colors.blue[50] : Colors.blue[100],
             trailing: IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: () => setState(() => tarefas.removeAt(index)),
@@ -38,14 +64,9 @@ class TodoListState extends State<TodoList> {
           );
         },
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(10),
-        child: Row(
-          children: [
-            Expanded(child: TextField(controller: _controller)),
-            IconButton(icon: Icon(Icons.add), onPressed: _adicionarTarefa),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddTaskDialog,
+        child: Icon(Icons.add),
       ),
     );
   }
